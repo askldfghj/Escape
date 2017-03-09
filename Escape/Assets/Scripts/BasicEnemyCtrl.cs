@@ -34,39 +34,6 @@ public class BasicEnemyCtrl : MonoBehaviour
         _movestat = MoveStatus.Normal;
     }
 
-    // Update is called once per frame
-    void FixedUpdate()
-    {
-        Move();
-    }
-
-    void Update()
-    {
-        if (_isChased)
-        {
-            RaySensor();
-        }
-    }
-
-    void RaySensor()
-    {
-        _ray2d = Physics2D.Raycast(_eyePosi.position, (_player.position - transform.position).normalized, 1f, _layerMask);
-        if (_ray2d.collider != null)
-        {
-            if (_ray2d.transform.tag == "Player")
-            {
-                Debug.Log("Check" + count);
-            }
-            else
-            {
-                Debug.Log("Missing" + count);
-                _lostLocation = _player.localPosition;
-                _isChased = false;
-                _movestat = MoveStatus.Missing;
-            }
-        }
-        
-    }
 
     void Move()
     {
