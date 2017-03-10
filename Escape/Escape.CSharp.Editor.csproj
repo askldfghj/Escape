@@ -170,6 +170,7 @@
     <None Include="Assets\NGUI\Resources\Shaders\Unlit - Transparent Colored.shader" />
     <None Include="Assets\Resource\Shaders\Stencil Mask.shader" />
     <None Include="Assets\Resource\Shaders\Stencil Object.shader" />
+    <None Include="Assets\Resource\Shaders\asdg.shader" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2015\UnityVS.CSharp.targets" />
 </Project>

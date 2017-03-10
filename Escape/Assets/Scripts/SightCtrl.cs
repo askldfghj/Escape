@@ -6,6 +6,8 @@ public class SightCtrl : MonoBehaviour
 {
     [Range(0, 3)]
     public float viewRadius;
+    [Range(0, 3)]
+    public float _maxViewRadius;
     [Range(0, 360)]
     public float viewAngle;
 
@@ -13,22 +15,32 @@ public class SightCtrl : MonoBehaviour
     public LayerMask obstacleMask;
 
     [HideInInspector]
-    public List<Transform> visibleTargets = new List<Transform>();
+    public Transform _target;
     [Range(0, 1)]
     public float meshResolution;
     public int edgeResolveInterations;
     public float edgeDstThreshold;
-
+    List<Vector3> viewPoints;
     public MeshFilter viewMeshFilter;
     Mesh viewMesh;
 
-    List<Vector3> viewPoints = new List<Vector3>();
+    
 
     ViewCastInfo oldViewCast;
     ViewCastInfo newViewCast;
 
-    Collider2D[] targetsInViewRadius;
-    
+    Collider2D _targetCollider;
+
+    //이후 추가 변수
+    bool _isCatch;
+    public BasicEnemyCtrl _eCtrl;
+
+    void Awake()
+    {
+        _isCatch = false;
+       viewPoints  = new List<Vector3>();
+    }
+
     void Start()
     {
         viewMesh = new Mesh();
@@ -40,9 +52,10 @@ public class SightCtrl : MonoBehaviour
 
     IEnumerator FindTargetsWithDelay(float delay)
     {
+        WaitForSeconds sec = new WaitForSeconds(delay);
         while (true)
         {
-            yield return new WaitForSeconds(delay);
+            yield return sec;
             FindVisibleTargets();
         }
     }
@@ -54,22 +67,50 @@ public class SightCtrl : MonoBehaviour
 
     void FindVisibleTargets()
     {
-        visibleTargets.Clear();
-        targetsInViewRadius = null;
-        targetsInViewRadius = Physics2D.OverlapCircleAll(transform.position, viewRadius, targetMask);
-
-        for (int i = 0; i < targetsInViewRadius.Length; i++)
+        //아직 발견 못함.
+        if (!_isCatch)
         {
-            Transform target = targetsInViewRadius[i].transform;
-            Vector3 dirToTarget = (target.position - transform.position).normalized;
-            if (Vector3.Angle(transform.right, dirToTarget) < viewAngle / 2)
+            _target = null;
+            _targetCollider = Physics2D.OverlapCircle(transform.position, viewRadius, targetMask);
+            if (_targetCollider != null)
             {
-                float dstToTarget = Vector3.Distance(transform.position, target.position);
-
-                if (!Physics2D.Raycast(transform.position, dirToTarget, dstToTarget, obstacleMask))
+                Transform target = _targetCollider.transform;
+                Vector3 dirToTarget = (target.position - transform.position).normalized;
+                if (Vector3.Angle(transform.right, dirToTarget) < viewAngle / 2)
                 {
-                    visibleTargets.Add(target);
+                    float dstToTarget = Vector3.Distance(transform.position, target.position);
+                    if (!Physics2D.Raycast(transform.position, dirToTarget, dstToTarget, obstacleMask))
+                    {
+                        _target = target;
+                        _eCtrl.SetChase(_target);
+                        _isCatch = true;
+                    }
                 }
+            }
+        }
+        //발견후 쫓아갈때.
+        else
+        {
+            _target = null;
+            _targetCollider = Physics2D.OverlapCircle(transform.position, _maxViewRadius, targetMask);
+            if (_targetCollider != null)
+            {
+                Transform target = _targetCollider.transform;
+                Vector3 dirToTarget = (target.position - transform.position).normalized;
+                if (Vector3.Angle(transform.right, dirToTarget) < viewAngle / 2)
+                {
+                    float dstToTarget = Vector3.Distance(transform.position, target.position);
+                    if (!Physics2D.Raycast(transform.position, dirToTarget, dstToTarget, obstacleMask))
+                    {
+                        _target = target;
+                        _eCtrl.SetChase(_target);
+                    }
+                }
+            }
+            else
+            {
+                _eCtrl.SetMissing();
+                _isCatch = false;
             }
         }
     }

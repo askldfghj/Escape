@@ -2,6 +2,7 @@ Shader "Unlit/Transparent Colored"
 {
 	Properties
 	{
+		_Color("Color", Color) = (1,1,1,1)
 		_MainTex ("Base (RGB), Alpha (A)", 2D) = "white" {}
 	}
 	

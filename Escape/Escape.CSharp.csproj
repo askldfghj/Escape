@@ -184,8 +184,12 @@
     <Compile Include="Assets\NGUI\Scripts\UI\UIViewport.cs" />
     <Compile Include="Assets\PlayerCtrl.cs" />
     <Compile Include="Assets\Scripts\BasicEnemyCtrl.cs" />
+    <Compile Include="Assets\Scripts\Grid.cs" />
     <Compile Include="Assets\Scripts\LV0_RQChanger.cs" />
+    <Compile Include="Assets\Scripts\Node.cs" />
+    <Compile Include="Assets\Scripts\Pathfinding.cs" />
     <Compile Include="Assets\Scripts\SightCtrl.cs" />
+    <Compile Include="Assets\sdgsdgsd.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\NGUI\Examples\Atlases\Fantasy\Fantasy Font - Normal.txt" />
@@ -222,6 +226,7 @@
     <None Include="Assets\NGUI\Resources\Shaders\Unlit - Transparent Colored.shader" />
     <None Include="Assets\Resource\Shaders\Stencil Mask.shader" />
     <None Include="Assets\Resource\Shaders\Stencil Object.shader" />
+    <None Include="Assets\Resource\Shaders\asdg.shader" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2015\UnityVS.CSharp.targets" />
 </Project>

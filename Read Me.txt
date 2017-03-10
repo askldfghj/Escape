@@ -1,0 +1,6 @@
+Thanks Sebastian Lague!
+
+Youtube - https://www.youtube.com/user/Cercopithecan
+
+Field of View (Lighting System)
+PathFinder (A* algorithm)
