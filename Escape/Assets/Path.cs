@@ -35,15 +35,17 @@ public class Path
     {
 
         Gizmos.color = Color.black;
-        foreach (Vector3 p in lookPoints)
+
+        for (int i = 0; i < lookPoints.Length; i++)
         {
-            Gizmos.DrawCube(p + Vector3.forward, new Vector3(0.05f, 0.05f, 0.05f));
+            Gizmos.DrawCube(lookPoints[i] + Vector3.forward, new Vector3(0.05f, 0.05f, 0.05f));
         }
 
         Gizmos.color = Color.white;
-        foreach (Line l in turnBoundaries)
+
+        for (int j = 0; j < turnBoundaries.Length; j++)
         {
-            l.DrawWithGizmos(1);
+            turnBoundaries[j].DrawWithGizmos(1);
         }
 
     }

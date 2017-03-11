@@ -16,6 +16,10 @@ public class Pathfinding : MonoBehaviour
 
     List<Node> path;
 
+    List<Node> neighbor;
+
+    List<Vector3> simplyfyWaypoints;
+
     void Awake()
     {
         requestManager = GetComponent<PathRequestManager>();
@@ -24,6 +28,8 @@ public class Pathfinding : MonoBehaviour
         closedSet = new HashSet<Node>();
 
         path = new List<Node>();
+        neighbor = new List<Node>();
+        simplyfyWaypoints = new List<Vector3>();
     }
 
     public void StartFindPath(Vector3 startPos, Vector3 targetPos)
@@ -33,9 +39,6 @@ public class Pathfinding : MonoBehaviour
 
     IEnumerator FindPath(Vector3 startPos, Vector3 targetPos)
     {
-        Stopwatch sw = new Stopwatch();
-        sw.Start();
-
         Vector3[] waypoints = new Vector3[0];
         bool pathSuccess = false;
 
@@ -57,30 +60,29 @@ public class Pathfinding : MonoBehaviour
 
                 if (node == targetNode)
                 {
-                    sw.Stop();
-                    print("path found : " + sw.ElapsedMilliseconds + "ms");
                     pathSuccess = true;
                     break;
                 }
 
-                foreach (Node neighbour in grid.GetNeighbours(node))
+                neighbor = grid.GetNeighbours(node);
+                for (int i = 0; i < neighbor.Count; i++)
                 {
-                    if (!neighbour.walkable || closedSet.Contains(neighbour))
+                    if (!neighbor[i].walkable || closedSet.Contains(neighbor[i]))
                     {
                         continue;
                     }
 
-                    int newCostToNeighbour = node.gCost + GetDistance(node, neighbour) + neighbour.movementPenalty;
-                    if (newCostToNeighbour < neighbour.gCost || !openSet.Contains(neighbour))
+                    int newCostToNeighbour = node.gCost + GetDistance(node, neighbor[i]) + neighbor[i].movementPenalty;
+                    if (newCostToNeighbour < neighbor[i].gCost || !openSet.Contains(neighbor[i]))
                     {
-                        neighbour.gCost = newCostToNeighbour;
-                        neighbour.hCost = GetDistance(neighbour, targetNode);
-                        neighbour.parent = node;
+                        neighbor[i].gCost = newCostToNeighbour;
+                        neighbor[i].hCost = GetDistance(neighbor[i], targetNode);
+                        neighbor[i].parent = node;
 
-                        if (!openSet.Contains(neighbour))
-                            openSet.Add(neighbour);
+                        if (!openSet.Contains(neighbor[i]))
+                            openSet.Add(neighbor[i]);
                         else
-                            openSet.UpdateItem(neighbour);
+                            openSet.UpdateItem(neighbor[i]);
                     }
                 }
             }
@@ -110,7 +112,7 @@ public class Pathfinding : MonoBehaviour
 
     Vector3[] SimplifyPath(List<Node> path)
     {
-        List<Vector3> waypoints = new List<Vector3>();
+        simplyfyWaypoints.Clear();
         Vector2 directionOld = Vector2.zero;
 
         for (int i = 1; i < path.Count; i++)
@@ -118,11 +120,11 @@ public class Pathfinding : MonoBehaviour
             Vector2 directionNew = new Vector2(path[i - 1].gridX - path[i].gridX, path[i - 1].gridY - path[i].gridY);
             if (directionNew != directionOld)
             {
-                waypoints.Add(path[i].worldPosition);
+                simplyfyWaypoints.Add(path[i].worldPosition);
             } 
             directionOld = directionNew;
         }
-        return waypoints.ToArray();
+        return simplyfyWaypoints.ToArray();
     }
 
     int GetDistance(Node nodeA, Node nodeB)

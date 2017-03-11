@@ -27,10 +27,11 @@ public class Grid : MonoBehaviour
         gridSizeX = Mathf.RoundToInt(gridWorldSize.x / nodeDiameter);
         gridSizeY = Mathf.RoundToInt(gridWorldSize.y / nodeDiameter);
 
-        foreach (TerrainType region in walkableRegions)
+
+        for (int i = 0; i < walkableRegions.Length; i++)
         {
-            walkableMask.value |= region.terrainMask.value;
-            walkableRegionsDictionary.Add((int)Mathf.Log(region.terrainMask.value, 2), region.terrainPenalty);
+            walkableMask.value |= walkableRegions[i].terrainMask.value;
+            walkableRegionsDictionary.Add((int)Mathf.Log(walkableRegions[i].terrainMask.value, 2), walkableRegions[i].terrainPenalty);
         }
 
         CreateGrid();
@@ -183,11 +184,14 @@ public class Grid : MonoBehaviour
         Gizmos.DrawWireCube(transform.position, new Vector3(gridWorldSize.x, gridWorldSize.y, 1));
         if (grid != null && displayGridGizmos)
         {
-            foreach (Node n in grid)
+            for (int x = 0; x < gridSizeX; x++)
             {
-                Gizmos.color = Color.Lerp(Color.white, Color.black, Mathf.InverseLerp(penaltyMin, penaltyMax, n.movementPenalty));
-                Gizmos.color = (n.walkable) ? Gizmos.color : Color.red;
-                Gizmos.DrawCube(n.worldPosition, Vector3.one * (nodeDiameter - .01f));
+                for (int y = 0; y < gridSizeY; y++)
+                {
+                    Gizmos.color = Color.Lerp(Color.white, Color.black, Mathf.InverseLerp(penaltyMin, penaltyMax, grid[x,y].movementPenalty));
+                    Gizmos.color = (grid[x, y].walkable) ? Gizmos.color : Color.red;
+                    Gizmos.DrawCube(grid[x, y].worldPosition, Vector3.one * (nodeDiameter - .01f));
+                }
             }
         }
     }
