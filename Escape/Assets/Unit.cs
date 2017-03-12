@@ -6,17 +6,64 @@ public class Unit : MonoBehaviour
     const float minPathUpdateTime = 0.2f;
     const float pathUpdateMoveThreshold = 0.5f;
 
-    public Transform target;
+
+    Transform _target;
+    Vector3 _lostLocation;
+    public Vector3 direction;
+
     public float speed = 0.5f;
     public float turnDst = 1f;
     public float turnSpeed = 3f;
 
     Path path;
+    
+
+    enum MoveStatus { Normal = 0, Chase, Missing, Check, Round, Back }
+    MoveStatus _movestat;
+
+    void Awake()
+    {
+        _lostLocation = Vector3.zero;
+        _movestat = MoveStatus.Normal;
+    }
 
     // Use this for initialization
     void Start()
     {
-        StartCoroutine(UpdatePath());
+        //StartCoroutine(UpdatePath());
+    }
+
+    void FixedUpdate()
+    {
+        Move();
+    }
+
+    void Move()
+    {
+        switch (_movestat)
+        {
+            case MoveStatus.Normal:
+                break;
+            case MoveStatus.Chase:
+                ChaseMove();
+                break;
+            case MoveStatus.Missing:
+                MissingMove();
+                break;
+        }
+    }
+
+    void ChaseMove()
+    {
+        //LooAt2DLocal(_target.localPosition);
+        //direction = (_target.localPosition - transform.localPosition).normalized;
+        //transform.Translate(Vector3.right * Time.deltaTime * speed);
+    }
+
+    void MissingMove()
+    {
+        PathRequestManager.RequestPath(new PathRequest(transform.position, _target.position, OnPathFound));
+        _movestat = MoveStatus.Check;
     }
 
     public void OnPathFound(Vector3[] waypoints, bool pathSuccessful)
@@ -29,24 +76,25 @@ public class Unit : MonoBehaviour
         }
     }
 
+
     IEnumerator UpdatePath()
     {
         if (Time.timeSinceLevelLoad < .3f)
         {
             yield return new WaitForSeconds(.3f);
         }
-        PathRequestManager.RequestPath(new PathRequest(transform.position, target.position, OnPathFound));
+        PathRequestManager.RequestPath(new PathRequest(transform.position, _target.position, OnPathFound));
 
         float sqrMoveThreshold = pathUpdateMoveThreshold * pathUpdateMoveThreshold;
-        Vector3 targetPosOld = target.position;
+        Vector3 targetPosOld = _target.position;
         WaitForSeconds sec = new WaitForSeconds(minPathUpdateTime);
         while (true)
         {
             yield return sec;
-            if ((target.position - targetPosOld).sqrMagnitude > sqrMoveThreshold)
+            if ((_target.position - targetPosOld).sqrMagnitude > sqrMoveThreshold)
             {
-                PathRequestManager.RequestPath(new PathRequest(transform.position, target.position, OnPathFound));
-                targetPosOld = target.position;
+                PathRequestManager.RequestPath(new PathRequest(transform.position, _target.position, OnPathFound));
+                targetPosOld = _target.position;
             }
         }
     }
@@ -102,6 +150,21 @@ public class Unit : MonoBehaviour
         float angle = Mathf.Atan2(targetPosi.y - transform.localPosition.y,
                                   targetPosi.x - transform.localPosition.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.Euler(0, 0, angle);
+    }
+
+    public void SetChase(Transform target)
+    {
+        _target = target;
+        StopCoroutine("FollowPath");
+        StopCoroutine("UpdatePath");
+        StartCoroutine("UpdatePath");
+        _movestat = MoveStatus.Chase;
+    }
+
+    public void SetMissing()
+    {
+        StopCoroutine("UpdatePath");
+        _movestat = MoveStatus.Missing;
     }
 
     public void OnDrawGizmos()

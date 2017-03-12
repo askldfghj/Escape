@@ -33,7 +33,8 @@ public class SightCtrl : MonoBehaviour
 
     //이후 추가 변수
     bool _isCatch;
-    public BasicEnemyCtrl _eCtrl;
+    //public BasicEnemyCtrl _eCtrl;
+    public Unit _eUnit;
 
     void Awake()
     {
@@ -82,7 +83,7 @@ public class SightCtrl : MonoBehaviour
                     if (!Physics2D.Raycast(transform.position, dirToTarget, dstToTarget, obstacleMask))
                     {
                         _target = target;
-                        _eCtrl.SetChase(_target);
+                        _eUnit.SetChase(_target);
                         _isCatch = true;
                     }
                 }
@@ -103,14 +104,15 @@ public class SightCtrl : MonoBehaviour
                     if (!Physics2D.Raycast(transform.position, dirToTarget, dstToTarget, obstacleMask))
                     {
                         _target = target;
-                        _eCtrl.SetChase(_target);
+                        _eUnit.SetChase(_target);
+                    }
+                    else
+                    {
+                        Debug.Log("missing!");
+                        _eUnit.SetMissing();
+                        _isCatch = false;
                     }
                 }
-            }
-            else
-            {
-                _eCtrl.SetMissing();
-                _isCatch = false;
             }
         }
     }
