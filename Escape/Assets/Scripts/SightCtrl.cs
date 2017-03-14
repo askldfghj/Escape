@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public class SightCtrl : MonoBehaviour
 {
     [Range(0, 3)]
-    public float viewRadius;
+    public float _minRadius;
     [Range(0, 3)]
     public float _maxViewRadius;
     [Range(0, 360)]
@@ -24,7 +24,7 @@ public class SightCtrl : MonoBehaviour
     public MeshFilter viewMeshFilter;
     Mesh viewMesh;
 
-    
+    float _currentViewRadius;
 
     ViewCastInfo oldViewCast;
     ViewCastInfo newViewCast;
@@ -40,6 +40,7 @@ public class SightCtrl : MonoBehaviour
     {
         _isCatch = false;
        viewPoints  = new List<Vector3>();
+        _currentViewRadius = _minRadius;
     }
 
     void Start()
@@ -72,7 +73,7 @@ public class SightCtrl : MonoBehaviour
         if (!_isCatch)
         {
             _target = null;
-            _targetCollider = Physics2D.OverlapCircle(transform.position, viewRadius, targetMask);
+            _targetCollider = Physics2D.OverlapCircle(transform.position, _currentViewRadius, targetMask);
             if (_targetCollider != null)
             {
                 Transform target = _targetCollider.transform;
@@ -85,6 +86,7 @@ public class SightCtrl : MonoBehaviour
                         _target = target;
                         _eUnit.SetChase(_target);
                         _isCatch = true;
+                        _currentViewRadius = _maxViewRadius;
                     }
                 }
             }
@@ -93,25 +95,29 @@ public class SightCtrl : MonoBehaviour
         else
         {
             _target = null;
-            _targetCollider = Physics2D.OverlapCircle(transform.position, _maxViewRadius, targetMask);
+            _targetCollider = Physics2D.OverlapCircle(transform.position, _currentViewRadius, targetMask);
             if (_targetCollider != null)
             {
                 Transform target = _targetCollider.transform;
                 Vector3 dirToTarget = (target.position - transform.position).normalized;
+                _target = target;
                 if (Vector3.Angle(transform.right, dirToTarget) < viewAngle / 2)
                 {
                     float dstToTarget = Vector3.Distance(transform.position, target.position);
                     if (!Physics2D.Raycast(transform.position, dirToTarget, dstToTarget, obstacleMask))
                     {
-                        _target = target;
-                        _eUnit.SetChase(_target);
+                        
                     }
                     else
                     {
-                        Debug.Log("missing!");
-                        _eUnit.SetMissing();
+                        _eUnit.SetMissing(_target.position);
                         _isCatch = false;
                     }
+                }
+                else
+                {
+                    _eUnit.SetMissing(_target.position);
+                    _isCatch = false;
                 }
             }
         }
@@ -210,14 +216,14 @@ public class SightCtrl : MonoBehaviour
     {
         Vector3 dir = DirFromAngle(globalAngle, true);
         RaycastHit2D hit;
-        hit = Physics2D.Raycast(transform.position, dir, viewRadius, obstacleMask);
+        hit = Physics2D.Raycast(transform.position, dir, _minRadius, obstacleMask);
         if (hit.collider != null)
         {
             return new ViewCastInfo(true, hit.point, hit.distance, globalAngle);
         }
         else
         {
-            return new ViewCastInfo(false, transform.position + dir * viewRadius, viewRadius, globalAngle);
+            return new ViewCastInfo(false, transform.position + dir * _minRadius, _minRadius, globalAngle);
         }
     }
 

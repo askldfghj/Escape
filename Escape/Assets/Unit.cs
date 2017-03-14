@@ -62,7 +62,6 @@ public class Unit : MonoBehaviour
 
     void MissingMove()
     {
-        PathRequestManager.RequestPath(new PathRequest(transform.position, _target.position, OnPathFound));
         _movestat = MoveStatus.Check;
     }
 
@@ -79,12 +78,6 @@ public class Unit : MonoBehaviour
 
     IEnumerator UpdatePath()
     {
-        if (Time.timeSinceLevelLoad < .3f)
-        {
-            yield return new WaitForSeconds(.3f);
-        }
-        PathRequestManager.RequestPath(new PathRequest(transform.position, _target.position, OnPathFound));
-
         float sqrMoveThreshold = pathUpdateMoveThreshold * pathUpdateMoveThreshold;
         Vector3 targetPosOld = _target.position;
         WaitForSeconds sec = new WaitForSeconds(minPathUpdateTime);
@@ -96,6 +89,7 @@ public class Unit : MonoBehaviour
                 PathRequestManager.RequestPath(new PathRequest(transform.position, _target.position, OnPathFound));
                 targetPosOld = _target.position;
             }
+            
         }
     }
 
@@ -154,17 +148,26 @@ public class Unit : MonoBehaviour
 
     public void SetChase(Transform target)
     {
-        _target = target;
-        StopCoroutine("FollowPath");
-        StopCoroutine("UpdatePath");
-        StartCoroutine("UpdatePath");
-        _movestat = MoveStatus.Chase;
+        if (_movestat != MoveStatus.Chase)
+        {
+            _target = target;
+            StopCoroutine("FollowPath");
+            PathRequestManager.RequestPath(new PathRequest(transform.position, _target.position, OnPathFound));
+            StartCoroutine("UpdatePath");
+            _movestat = MoveStatus.Chase;
+        }
     }
 
-    public void SetMissing()
+    public void SetMissing(Vector3 lostposi)
     {
-        StopCoroutine("UpdatePath");
-        _movestat = MoveStatus.Missing;
+        if (_movestat != MoveStatus.Missing)
+        {
+            StopCoroutine("UpdatePath");
+            _lostLocation = lostposi;
+            PathRequestManager.RequestPath(new PathRequest(transform.position, _target.position, OnPathFound));
+            StartCoroutine("FollowPath");
+            _movestat = MoveStatus.Missing;
+        }
     }
 
     public void OnDrawGizmos()

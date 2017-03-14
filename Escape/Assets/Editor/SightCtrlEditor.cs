@@ -9,7 +9,7 @@ public class SightCtrlEditor : Editor
     {
         SightCtrl sightctrl = (SightCtrl)target;
         Handles.color = Color.blue;
-        Handles.DrawWireArc(sightctrl.transform.position, Vector3.forward, Vector3.up, 360, sightctrl.viewRadius);
+        Handles.DrawWireArc(sightctrl.transform.position, Vector3.forward, Vector3.up, 360, sightctrl._minRadius);
         Handles.DrawWireArc(sightctrl.transform.position, Vector3.forward, Vector3.up, 360, sightctrl._maxViewRadius);
         Vector3 viewAngleA = sightctrl.DirFromAngle(-sightctrl.viewAngle / 2, false);
         Vector3 viewAngleB = sightctrl.DirFromAngle(sightctrl.viewAngle / 2, false);
