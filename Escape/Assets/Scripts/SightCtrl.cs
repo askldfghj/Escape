@@ -9,7 +9,9 @@ public class SightCtrl : MonoBehaviour
     [Range(0, 3)]
     public float _maxViewRadius;
     [Range(0, 360)]
-    public float viewAngle;
+    public float _minViewAngle;
+    [Range(0, 360)]
+    public float _maxViewAngle;
 
     public LayerMask targetMask;
     public LayerMask obstacleMask;
@@ -78,7 +80,7 @@ public class SightCtrl : MonoBehaviour
             {
                 Transform target = _targetCollider.transform;
                 Vector3 dirToTarget = (target.position - transform.position).normalized;
-                if (Vector3.Angle(transform.right, dirToTarget) < viewAngle / 2)
+                if (Vector3.Angle(transform.right, dirToTarget) < _minViewAngle / 2)
                 {
                     float dstToTarget = Vector3.Distance(transform.position, target.position);
                     if (!Physics2D.Raycast(transform.position, dirToTarget, dstToTarget, obstacleMask))
@@ -101,7 +103,7 @@ public class SightCtrl : MonoBehaviour
                 Transform target = _targetCollider.transform;
                 Vector3 dirToTarget = (target.position - transform.position).normalized;
                 _target = target;
-                if (Vector3.Angle(transform.right, dirToTarget) < viewAngle / 2)
+                if (Vector3.Angle(transform.right, dirToTarget) < _maxViewAngle / 2)
                 {
                     float dstToTarget = Vector3.Distance(transform.position, target.position);
                     if (!Physics2D.Raycast(transform.position, dirToTarget, dstToTarget, obstacleMask))
@@ -125,8 +127,8 @@ public class SightCtrl : MonoBehaviour
 
     void DrawFieldOfView()
     {
-        int stepCount = Mathf.RoundToInt(viewAngle * meshResolution);
-        float stepAngleSize = viewAngle / stepCount;
+        int stepCount = Mathf.RoundToInt(_minViewAngle * meshResolution);
+        float stepAngleSize = _minViewAngle / stepCount;
         viewPoints.Clear();
         oldViewCast.Init();
         newViewCast.Init();
@@ -136,7 +138,7 @@ public class SightCtrl : MonoBehaviour
         EdgeInfo edge;
         for (int i = 0; i <= stepCount; i++)
         {
-            angle = transform.eulerAngles.z - viewAngle / 2 + stepAngleSize * i;
+            angle = transform.eulerAngles.z - _minViewAngle / 2 + stepAngleSize * i;
             newViewCast = ViewCast(angle);
 
             if (i > 0)

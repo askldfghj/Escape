@@ -3,9 +3,7 @@ using System.Collections;
 
 public class Unit : MonoBehaviour
 {
-    const float minPathUpdateTime = 0.2f;
-    const float pathUpdateMoveThreshold = 0.5f;
-
+    const float minPathUpdateTime = 0.4f;
 
     Transform _target;
     Vector3 _lostLocation;
@@ -20,6 +18,8 @@ public class Unit : MonoBehaviour
 
     enum MoveStatus { Normal = 0, Chase, Missing, Check, Round, Back }
     MoveStatus _movestat;
+
+    IEnumerator _currentCoroutine;
 
     void Awake()
     {
@@ -45,7 +45,6 @@ public class Unit : MonoBehaviour
             case MoveStatus.Normal:
                 break;
             case MoveStatus.Chase:
-                ChaseMove();
                 break;
             case MoveStatus.Missing:
                 MissingMove();
@@ -53,11 +52,26 @@ public class Unit : MonoBehaviour
         }
     }
 
-    void ChaseMove()
+    IEnumerator ChaseMove()
     {
-        //LooAt2DLocal(_target.localPosition);
-        //direction = (_target.localPosition - transform.localPosition).normalized;
-        //transform.Translate(Vector3.right * Time.deltaTime * speed);
+        while (true)
+        {
+            LooAt2DLocal(_target.localPosition);
+            direction = (_target.localPosition - transform.localPosition).normalized;
+            transform.Translate(Vector3.right * Time.deltaTime * speed);
+            yield return null;
+        }
+    }
+
+    IEnumerator LastPosition()
+    {
+        int count = 0;
+        while (count < 2)
+        {
+            yield return new WaitForSeconds(0.1f);
+            count++;
+        }
+        PathRequestManager.RequestPath(new PathRequest(transform.position, _target.position, OnPathFound));
     }
 
     void MissingMove()
@@ -78,17 +92,12 @@ public class Unit : MonoBehaviour
 
     IEnumerator UpdatePath()
     {
-        float sqrMoveThreshold = pathUpdateMoveThreshold * pathUpdateMoveThreshold;
-        Vector3 targetPosOld = _target.position;
+        PathRequestManager.RequestPath(new PathRequest(transform.position, _target.position, OnPathFound));
         WaitForSeconds sec = new WaitForSeconds(minPathUpdateTime);
         while (true)
         {
             yield return sec;
-            if ((_target.position - targetPosOld).sqrMagnitude > sqrMoveThreshold)
-            {
                 PathRequestManager.RequestPath(new PathRequest(transform.position, _target.position, OnPathFound));
-                targetPosOld = _target.position;
-            }
             
         }
     }
@@ -151,8 +160,6 @@ public class Unit : MonoBehaviour
         if (_movestat != MoveStatus.Chase)
         {
             _target = target;
-            StopCoroutine("FollowPath");
-            PathRequestManager.RequestPath(new PathRequest(transform.position, _target.position, OnPathFound));
             StartCoroutine("UpdatePath");
             _movestat = MoveStatus.Chase;
         }
@@ -163,9 +170,7 @@ public class Unit : MonoBehaviour
         if (_movestat != MoveStatus.Missing)
         {
             StopCoroutine("UpdatePath");
-            _lostLocation = lostposi;
-            PathRequestManager.RequestPath(new PathRequest(transform.position, _target.position, OnPathFound));
-            StartCoroutine("FollowPath");
+            StartCoroutine("LastPosition");
             _movestat = MoveStatus.Missing;
         }
     }
