@@ -175,12 +175,12 @@ public class Unit : MonoBehaviour
         }
     }
 
-    public void OnDrawGizmos()
-    {
-        Vector3 vec = new Vector3(0.05f, 0.05f, 0.05f);
-        if (path != null)
-        {
-            path.DrawWithGizmos();           
-        }
-    } 
+    //public void OnDrawGizmos()
+    //{
+    //    Vector3 vec = new Vector3(0.05f, 0.05f, 0.05f);
+    //    if (path != null)
+    //    {
+    //        path.DrawWithGizmos();           
+    //    }
+    //} 
  }
