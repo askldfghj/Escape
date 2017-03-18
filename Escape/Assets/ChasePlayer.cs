@@ -14,6 +14,6 @@ public class ChasePlayer : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        transform.position = _player.transform.position + _offset;
+        transform.position = _player.transform.position;
     }
 }
