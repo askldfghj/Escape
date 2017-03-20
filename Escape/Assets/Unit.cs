@@ -9,6 +9,12 @@ public class Unit : MonoBehaviour
     Vector3 _lostLocation;
     public Vector3 direction;
 
+    public Transform _left;
+    public Transform _right;
+
+    Vector3 _leftVisionPosi;
+    Vector3 _rightVisionPosi;
+
     public float speed = 0.5f;
     public float turnDst = 1f;
     public float turnSpeed = 3f;
@@ -35,21 +41,7 @@ public class Unit : MonoBehaviour
 
     void FixedUpdate()
     {
-        Move();
-    }
 
-    void Move()
-    {
-        switch (_movestat)
-        {
-            case MoveStatus.Normal:
-                break;
-            case MoveStatus.Chase:
-                break;
-            case MoveStatus.Missing:
-                MissingMove();
-                break;
-        }
     }
 
     IEnumerator ChaseMove()
@@ -74,9 +66,29 @@ public class Unit : MonoBehaviour
         PathRequestManager.RequestPath(new PathRequest(transform.position, _target.position, OnPathFound));
     }
 
-    void MissingMove()
+    IEnumerator CheckMove()
     {
-        _movestat = MoveStatus.Check;
+        yield return new WaitForSeconds(2f);
+        _leftVisionPosi = _left.position;
+        _rightVisionPosi = _right.position;
+        int count = 0;
+        while (count < 100)
+        {
+            float angle = 0;
+            Quaternion tarrot = Quaternion.AngleAxis(angle, Vector3.forward);
+            transform.rotation = Quaternion.Slerp(transform.rotation, tarrot, (turnSpeed * 0.8f) * Time.deltaTime);
+            count++;
+            yield return null;
+        }
+        count = 0;
+        while (count < 100)
+        {
+            float angle = 180;
+            Quaternion tarrot = Quaternion.AngleAxis(angle, Vector3.forward);
+            transform.rotation = Quaternion.Slerp(transform.rotation, tarrot, (turnSpeed * 0.8f) * Time.deltaTime);
+            count++;
+            yield return null;
+        }
     }
 
     public void OnPathFound(Vector3[] waypoints, bool pathSuccessful)
@@ -139,6 +151,12 @@ public class Unit : MonoBehaviour
             }
             yield return null;
         }
+
+        if (_movestat == MoveStatus.Missing)
+        {
+            _movestat = MoveStatus.Check;
+            StartCoroutine("CheckMove");
+        }
     }
 
     void LooAt2D(Vector3 targetPosi)
@@ -169,10 +187,20 @@ public class Unit : MonoBehaviour
     {
         if (_movestat != MoveStatus.Missing)
         {
+            StopCoroutine("CheckMove");
             StopCoroutine("UpdatePath");
             StartCoroutine("LastPosition");
             _movestat = MoveStatus.Missing;
         }
+    }
+
+    float toPositive(float a)
+    {
+        if (a < 0)
+        {
+            return -a;
+        }
+        return a;
     }
 
     //public void OnDrawGizmos()
