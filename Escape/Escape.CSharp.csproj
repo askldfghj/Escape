@@ -230,6 +230,7 @@
     <None Include="Assets\NGUI\Resources\Shaders\Unlit - Transparent Colored (Packed).shader" />
     <None Include="Assets\NGUI\Resources\Shaders\Unlit - Transparent Colored (SoftClip).shader" />
     <None Include="Assets\NGUI\Resources\Shaders\Unlit - Transparent Colored.shader" />
+    <None Include="Assets\Resource\Shaders\Standard_sample.shader" />
     <None Include="Assets\Resource\Shaders\Stencil Mask.shader" />
     <None Include="Assets\Resource\Shaders\Stencil Object.shader" />
     <None Include="Assets\Resource\Shaders\asdg.shader" />

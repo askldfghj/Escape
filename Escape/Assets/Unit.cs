@@ -9,9 +9,6 @@ public class Unit : MonoBehaviour
     Vector3 _lostLocation;
     public Vector3 direction;
 
-    public Transform _left;
-    public Transform _right;
-
     Vector3 _leftVisionPosi;
     Vector3 _rightVisionPosi;
 
@@ -69,21 +66,20 @@ public class Unit : MonoBehaviour
     IEnumerator CheckMove()
     {
         yield return new WaitForSeconds(2f);
-        _leftVisionPosi = _left.position;
-        _rightVisionPosi = _right.position;
         int count = 0;
+        float current_angle = transform.eulerAngles.z;
+        float angle = current_angle + 70;
         while (count < 100)
         {
-            float angle = 0;
             Quaternion tarrot = Quaternion.AngleAxis(angle, Vector3.forward);
             transform.rotation = Quaternion.Slerp(transform.rotation, tarrot, (turnSpeed * 0.8f) * Time.deltaTime);
             count++;
             yield return null;
         }
         count = 0;
+        angle = current_angle - 70;
         while (count < 100)
         {
-            float angle = 180;
             Quaternion tarrot = Quaternion.AngleAxis(angle, Vector3.forward);
             transform.rotation = Quaternion.Slerp(transform.rotation, tarrot, (turnSpeed * 0.8f) * Time.deltaTime);
             count++;

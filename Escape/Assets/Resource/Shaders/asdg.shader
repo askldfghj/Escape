@@ -1,4 +1,4 @@
-﻿Shader "Unlit/Transparent Color"
+﻿Shader "Unlit/Transparent Color(sample)"
 {
 	Properties
 	{
@@ -8,11 +8,11 @@
 
 	SubShader
 	{
-		LOD 100
+		LOD 200
 
 		Tags
 		{
-			"Queue" = "Transparent"
+			"Queue" = "Transparent+100"
 			"IgnoreProjector" = "True"
 			"RenderType" = "Transparent"
 		}
