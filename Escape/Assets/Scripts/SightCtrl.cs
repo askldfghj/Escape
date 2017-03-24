@@ -18,15 +18,20 @@ public class SightCtrl : MonoBehaviour
 
     [HideInInspector]
     public Transform _target;
+    Transform _oldtarget;
     [Range(0, 1)]
     public float meshResolution;
     public int edgeResolveInterations;
     public float edgeDstThreshold;
+
+    public Renderer _mRenderer;
+
     List<Vector3> viewPoints;
     public MeshFilter viewMeshFilter;
     Mesh viewMesh;
 
-    float _currentViewRadius;
+    float _currentRadius;
+    float _currentViewAngle;
 
     ViewCastInfo oldViewCast;
     ViewCastInfo newViewCast;
@@ -42,7 +47,8 @@ public class SightCtrl : MonoBehaviour
     {
         _isCatch = false;
        viewPoints  = new List<Vector3>();
-        _currentViewRadius = _minRadius;
+        _currentRadius = _minRadius;
+        _currentViewAngle = _minViewAngle;
     }
 
     void Start()
@@ -71,16 +77,17 @@ public class SightCtrl : MonoBehaviour
 
     void FindVisibleTargets()
     {
+
         //아직 발견 못함.
         if (!_isCatch)
         {
             _target = null;
-            _targetCollider = Physics2D.OverlapCircle(transform.position, _currentViewRadius, targetMask);
+            _targetCollider = Physics2D.OverlapCircle(transform.position, _currentRadius, targetMask);
             if (_targetCollider != null)
             {
                 Transform target = _targetCollider.transform;
                 Vector3 dirToTarget = (target.position - transform.position).normalized;
-                if (Vector3.Angle(transform.right, dirToTarget) < _minViewAngle / 2)
+                if (Vector3.Angle(transform.right, dirToTarget) < _currentViewAngle / 2)
                 {
                     float dstToTarget = Vector3.Distance(transform.position, target.position);
                     if (!Physics2D.Raycast(transform.position, dirToTarget, dstToTarget, obstacleMask))
@@ -88,7 +95,10 @@ public class SightCtrl : MonoBehaviour
                         _target = target;
                         _eUnit.SetChase(_target);
                         _isCatch = true;
-                        _currentViewRadius = _maxViewRadius;
+                        Color color = new Color(1, 0.92f, 0.016f, 0.5f);
+                        _mRenderer.material.color = color;
+                        _currentRadius = _maxViewRadius;
+                        _currentViewAngle = _maxViewAngle;
                     }
                 }
             }
@@ -97,13 +107,14 @@ public class SightCtrl : MonoBehaviour
         else
         {
             _target = null;
-            _targetCollider = Physics2D.OverlapCircle(transform.position, _currentViewRadius, targetMask);
+            _targetCollider = Physics2D.OverlapCircle(transform.position, _currentRadius, targetMask);
             if (_targetCollider != null)
             {
                 Transform target = _targetCollider.transform;
+                _oldtarget = _targetCollider.transform;
                 Vector3 dirToTarget = (target.position - transform.position).normalized;
                 _target = target;
-                if (Vector3.Angle(transform.right, dirToTarget) < _maxViewAngle / 2)
+                if (Vector3.Angle(transform.right, dirToTarget) < _currentViewAngle / 2)
                 {
                     float dstToTarget = Vector3.Distance(transform.position, target.position);
                     if (!Physics2D.Raycast(transform.position, dirToTarget, dstToTarget, obstacleMask))
@@ -121,6 +132,11 @@ public class SightCtrl : MonoBehaviour
                     _eUnit.SetMissing(_target.position);
                     _isCatch = false;
                 }
+            }
+            else
+            {
+                _eUnit.SetMissing(_oldtarget.position);
+                _isCatch = false;
             }
         }
     }

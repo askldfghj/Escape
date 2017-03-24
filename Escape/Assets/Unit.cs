@@ -7,14 +7,13 @@ public class Unit : MonoBehaviour
 
     Transform _target;
     Vector3 _lostLocation;
-    public Vector3 direction;
-
-    Vector3 _leftVisionPosi;
-    Vector3 _rightVisionPosi;
 
     public float speed = 0.5f;
     public float turnDst = 1f;
     public float turnSpeed = 3f;
+
+    public LayerMask _doorMask;
+    
 
     Path path;
     
@@ -46,7 +45,6 @@ public class Unit : MonoBehaviour
         while (true)
         {
             LooAt2DLocal(_target.localPosition);
-            direction = (_target.localPosition - transform.localPosition).normalized;
             transform.Translate(Vector3.right * Time.deltaTime * speed);
             yield return null;
         }
@@ -84,6 +82,13 @@ public class Unit : MonoBehaviour
             transform.rotation = Quaternion.Slerp(transform.rotation, tarrot, (turnSpeed * 0.8f) * Time.deltaTime);
             count++;
             yield return null;
+        }
+
+        Collider2D doorCollider = Physics2D.OverlapCircle(transform.position, 1.2f, _doorMask);
+        if (doorCollider != null && doorCollider.transform.parent.tag == "Room")
+        {
+            Vector3 roomPosi = doorCollider.transform.parent.position;
+            PathRequestManager.RequestPath(new PathRequest(transform.position, roomPosi, OnPathFound));
         }
     }
 
@@ -152,6 +157,10 @@ public class Unit : MonoBehaviour
         {
             _movestat = MoveStatus.Check;
             StartCoroutine("CheckMove");
+        }
+        else if (_movestat == MoveStatus.Check)
+        {
+            _movestat = MoveStatus.Round;
         }
     }
 
