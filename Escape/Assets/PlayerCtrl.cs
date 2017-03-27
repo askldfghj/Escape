@@ -4,6 +4,8 @@ using System.Collections;
 public class PlayerCtrl : MonoBehaviour
 {
     // Use this for initialization
+    public GameObject _minimap;
+
     void Start()
     {
         

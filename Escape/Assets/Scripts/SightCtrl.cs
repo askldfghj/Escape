@@ -43,10 +43,13 @@ public class SightCtrl : MonoBehaviour
     //public BasicEnemyCtrl _eCtrl;
     public Unit _eUnit;
 
+    int _warnCount;
+
     void Awake()
     {
+        _warnCount = 0;
         _isCatch = false;
-       viewPoints  = new List<Vector3>();
+        viewPoints = new List<Vector3>();
         _currentRadius = _minRadius;
         _currentViewAngle = _minViewAngle;
     }
@@ -95,10 +98,37 @@ public class SightCtrl : MonoBehaviour
                         _target = target;
                         _eUnit.SetChase(_target);
                         _isCatch = true;
-                        Color color = new Color(1, 0.92f, 0.016f, 0.5f);
+                        Color color = new Color(1, 1f, 0f, 0.5f);
                         _mRenderer.material.color = color;
                         _currentRadius = _maxViewRadius;
                         _currentViewAngle = _maxViewAngle;
+                    }
+                }
+            }
+            else
+            {
+                _targetCollider = Physics2D.OverlapCircle(transform.position, _maxViewRadius, targetMask);
+                if (_targetCollider != null)
+                {
+                    Transform target = _targetCollider.transform;
+                    Vector3 dirToTarget = (target.position - transform.position).normalized;
+                    if (Vector3.Angle(transform.right, dirToTarget) < _currentViewAngle / 2)
+                    {
+                        float dstToTarget = Vector3.Distance(transform.position, target.position);
+                        if (!Physics2D.Raycast(transform.position, dirToTarget, dstToTarget, obstacleMask))
+                        {
+                            _warnCount++;
+                            if (_warnCount > 19)
+                            {
+                                _target = target;
+                                _eUnit.SetChase(_target);
+                                _isCatch = true;
+                                Color color = new Color(1, 1f, 0f, 0f);
+                                _mRenderer.material.color = color;
+                                _currentRadius = _maxViewRadius;
+                                _currentViewAngle = _maxViewAngle;
+                            }
+                        }
                     }
                 }
             }
@@ -119,7 +149,7 @@ public class SightCtrl : MonoBehaviour
                     float dstToTarget = Vector3.Distance(transform.position, target.position);
                     if (!Physics2D.Raycast(transform.position, dirToTarget, dstToTarget, obstacleMask))
                     {
-                        
+
                     }
                     else
                     {

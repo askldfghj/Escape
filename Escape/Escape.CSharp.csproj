@@ -65,6 +65,7 @@
   <ItemGroup>
     <Compile Include="Assets\ChasePlayer.cs" />
     <Compile Include="Assets\E_eyeScript.cs" />
+    <Compile Include="Assets\FixMinimapPosi.cs" />
     <Compile Include="Assets\Heap.cs" />
     <Compile Include="Assets\Line.cs" />
     <Compile Include="Assets\NGUI\Examples\Scripts\InventorySystem\Game\EquipItems.cs" />

@@ -8,6 +8,10 @@ public class Unit : MonoBehaviour
     Transform _target;
     Vector3 _lostLocation;
 
+    public Transform _myPath;
+    Transform[] _myPathList;
+    int _myPathindex;
+
     public float speed = 0.5f;
     public float turnDst = 1f;
     public float turnSpeed = 3f;
@@ -25,19 +29,33 @@ public class Unit : MonoBehaviour
 
     void Awake()
     {
+        _myPathindex = 2;
         _lostLocation = Vector3.zero;
         _movestat = MoveStatus.Normal;
+        _myPathList = _myPath.GetComponentsInChildren<Transform>();
+        Debug.Log(_myPathList.Length);
     }
 
     // Use this for initialization
     void Start()
     {
-        //StartCoroutine(UpdatePath());
+        for (int i = 0; i < _myPathList.Length - 1; i++)
+        {
+            Debug.Log(_myPathList[i].localPosition);
+        }
+        StartCoroutine("NormalMove", _myPathindex);
     }
 
     void FixedUpdate()
     {
 
+    }
+
+    IEnumerator NormalMove(int index)
+    {
+        yield return new WaitForSeconds(3f);
+        PathRequestManager.RequestPath(new PathRequest(transform.position, _myPathList[index].position, OnPathFound));
+        Debug.Log(_myPathList[index].position);
     }
 
     IEnumerator ChaseMove()
@@ -52,18 +70,15 @@ public class Unit : MonoBehaviour
 
     IEnumerator LastPosition()
     {
-        int count = 0;
-        while (count < 2)
-        {
-            yield return new WaitForSeconds(0.1f);
-            count++;
-        }
-        PathRequestManager.RequestPath(new PathRequest(transform.position, _target.position, OnPathFound));
+        yield return new WaitForSeconds(1f);
+        StopCoroutine("UpdatePath");
+        _lostLocation = _target.position;
+        PathRequestManager.RequestPath(new PathRequest(transform.position, _lostLocation, OnPathFound));
     }
 
     IEnumerator CheckMove()
     {
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(0.5f);
         int count = 0;
         float current_angle = transform.eulerAngles.z;
         float angle = current_angle + 70;
@@ -84,11 +99,44 @@ public class Unit : MonoBehaviour
             yield return null;
         }
 
-        Collider2D doorCollider = Physics2D.OverlapCircle(transform.position, 1.2f, _doorMask);
+        Collider2D doorCollider = Physics2D.OverlapCircle(_lostLocation, 1.2f, _doorMask);
         if (doorCollider != null && doorCollider.transform.parent.tag == "Room")
         {
             Vector3 roomPosi = doorCollider.transform.parent.position;
             PathRequestManager.RequestPath(new PathRequest(transform.position, roomPosi, OnPathFound));
+        }
+    }
+
+    IEnumerator RoundMove()
+    {
+        yield return new WaitForSeconds(0.5f);
+        int count = 0;
+        float current_angle = transform.eulerAngles.z;
+        float angle = current_angle + 70;
+        while (count < 100)
+        {
+            Quaternion tarrot = Quaternion.AngleAxis(angle, Vector3.forward);
+            transform.rotation = Quaternion.Slerp(transform.rotation, tarrot, (turnSpeed * 0.8f) * Time.deltaTime);
+            count++;
+            yield return null;
+        }
+        count = 0;
+        angle = current_angle - 70;
+        while (count < 100)
+        {
+            Quaternion tarrot = Quaternion.AngleAxis(angle, Vector3.forward);
+            transform.rotation = Quaternion.Slerp(transform.rotation, tarrot, (turnSpeed * 0.8f) * Time.deltaTime);
+            count++;
+            yield return null;
+        }
+        count = 0;
+        angle = current_angle - 180;
+        while (count < 100)
+        {
+            Quaternion tarrot = Quaternion.AngleAxis(angle, Vector3.forward);
+            transform.rotation = Quaternion.Slerp(transform.rotation, tarrot, (turnSpeed * 0.8f) * Time.deltaTime);
+            count++;
+            yield return null;
         }
     }
 
@@ -110,7 +158,7 @@ public class Unit : MonoBehaviour
         while (true)
         {
             yield return sec;
-                PathRequestManager.RequestPath(new PathRequest(transform.position, _target.position, OnPathFound));
+            PathRequestManager.RequestPath(new PathRequest(transform.position, _target.position, OnPathFound));
             
         }
     }
@@ -152,7 +200,19 @@ public class Unit : MonoBehaviour
             }
             yield return null;
         }
-
+        if (_movestat == MoveStatus.Normal)
+        {
+            if (_myPathindex >= _myPathList.Length - 2)
+            {
+                _myPathindex = 1;
+            }
+            else
+            {
+                _myPathindex++;
+                Debug.Log(_myPathindex);
+            }
+            StartCoroutine("NormalMove", _myPathindex);
+        }
         if (_movestat == MoveStatus.Missing)
         {
             _movestat = MoveStatus.Check;
@@ -161,6 +221,7 @@ public class Unit : MonoBehaviour
         else if (_movestat == MoveStatus.Check)
         {
             _movestat = MoveStatus.Round;
+            StartCoroutine("RoundMove");
         }
     }
 
@@ -183,6 +244,7 @@ public class Unit : MonoBehaviour
         if (_movestat != MoveStatus.Chase)
         {
             _target = target;
+            StopAllCoroutines();
             StartCoroutine("UpdatePath");
             _movestat = MoveStatus.Chase;
         }
@@ -192,8 +254,6 @@ public class Unit : MonoBehaviour
     {
         if (_movestat != MoveStatus.Missing)
         {
-            StopCoroutine("CheckMove");
-            StopCoroutine("UpdatePath");
             StartCoroutine("LastPosition");
             _movestat = MoveStatus.Missing;
         }
