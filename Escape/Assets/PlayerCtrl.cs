@@ -19,21 +19,32 @@ public class PlayerCtrl : MonoBehaviour
 
     void Move()
     {
-        if (Input.GetKey(KeyCode.UpArrow))
+        if (!_minimap.activeSelf)
         {
-            transform.Translate(Vector2.up * 0.5f * Time.deltaTime);
+            if (Input.GetKey(KeyCode.UpArrow))
+            {
+                transform.Translate(Vector2.up * 0.5f * Time.deltaTime);
+            }
+            if (Input.GetKey(KeyCode.DownArrow))
+            {
+                transform.Translate(Vector2.down * 0.5f * Time.deltaTime);
+            }
+            if (Input.GetKey(KeyCode.LeftArrow))
+            {
+                transform.Translate(Vector2.left * 0.5f * Time.deltaTime);
+            }
+            if (Input.GetKey(KeyCode.RightArrow))
+            {
+                transform.Translate(Vector2.right * 0.5f * Time.deltaTime);
+            }
         }
-        if (Input.GetKey(KeyCode.DownArrow))
+        if (Input.GetKeyDown(KeyCode.Q))
         {
-            transform.Translate(Vector2.down * 0.5f * Time.deltaTime);
+            _minimap.SetActive(true);
         }
-        if (Input.GetKey(KeyCode.LeftArrow))
+        else if (Input.GetKeyUp(KeyCode.Q))
         {
-            transform.Translate(Vector2.left * 0.5f * Time.deltaTime);
-        }
-        if (Input.GetKey(KeyCode.RightArrow))
-        {
-            transform.Translate(Vector2.right * 0.5f * Time.deltaTime);
+            _minimap.SetActive(false);
         }
     }
 }

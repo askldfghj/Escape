@@ -25,6 +25,8 @@ public class Unit : MonoBehaviour
     enum MoveStatus { Normal = 0, Chase, Missing, Check, Round, Back }
     MoveStatus _movestat;
 
+    bool _patroller = false;
+
     IEnumerator _currentCoroutine;
 
     void Awake()
@@ -32,18 +34,20 @@ public class Unit : MonoBehaviour
         _myPathindex = 2;
         _lostLocation = Vector3.zero;
         _movestat = MoveStatus.Normal;
-        _myPathList = _myPath.GetComponentsInChildren<Transform>();
-        Debug.Log(_myPathList.Length);
+        if (_myPath != null)
+        {
+            _myPathList = _myPath.GetComponentsInChildren<Transform>();
+            _patroller = true;
+        }
     }
 
     // Use this for initialization
     void Start()
     {
-        for (int i = 0; i < _myPathList.Length - 1; i++)
+        if (_patroller)
         {
-            Debug.Log(_myPathList[i].localPosition);
+            StartCoroutine("NormalMove", _myPathindex);
         }
-        StartCoroutine("NormalMove", _myPathindex);
     }
 
     void FixedUpdate()
@@ -53,9 +57,8 @@ public class Unit : MonoBehaviour
 
     IEnumerator NormalMove(int index)
     {
-        yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(0.5f);
         PathRequestManager.RequestPath(new PathRequest(transform.position, _myPathList[index].position, OnPathFound));
-        Debug.Log(_myPathList[index].position);
     }
 
     IEnumerator ChaseMove()
@@ -209,7 +212,6 @@ public class Unit : MonoBehaviour
             else
             {
                 _myPathindex++;
-                Debug.Log(_myPathindex);
             }
             StartCoroutine("NormalMove", _myPathindex);
         }

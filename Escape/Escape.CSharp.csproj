@@ -64,9 +64,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\ChasePlayer.cs" />
+    <Compile Include="Assets\DoorCtrl.cs" />
     <Compile Include="Assets\E_eyeScript.cs" />
     <Compile Include="Assets\FixMinimapPosi.cs" />
     <Compile Include="Assets\Heap.cs" />
+    <Compile Include="Assets\KeyContrl.cs" />
     <Compile Include="Assets\Line.cs" />
     <Compile Include="Assets\NGUI\Examples\Scripts\InventorySystem\Game\EquipItems.cs" />
     <Compile Include="Assets\NGUI\Examples\Scripts\InventorySystem\Game\EquipRandomItem.cs" />
@@ -196,7 +198,6 @@
     <Compile Include="Assets\Scripts\Pathfinding.cs" />
     <Compile Include="Assets\Scripts\SightCtrl.cs" />
     <Compile Include="Assets\Unit.cs" />
-    <Compile Include="Assets\sdgsdgsd.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\NGUI\Examples\Atlases\Fantasy\Fantasy Font - Normal.txt" />
