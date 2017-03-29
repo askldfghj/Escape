@@ -7,6 +7,7 @@ public class Unit : MonoBehaviour
 
     Transform _target;
     Vector3 _lostLocation;
+    Collider2D[] companions;
 
     public Transform _myPath;
     Transform[] _myPathList;
@@ -17,20 +18,25 @@ public class Unit : MonoBehaviour
     public float turnSpeed = 3f;
 
     public LayerMask _doorMask;
+    public LayerMask _companionMask;
     
 
     Path path;
     
 
-    enum MoveStatus { Normal = 0, Chase, Missing, Check, Round, Back }
+    enum MoveStatus { Normal = 0, doubt, Chase, Missing, Check, Round, Back }
     MoveStatus _movestat;
+    public int sample;
 
     bool _patroller = false;
-
-    IEnumerator _currentCoroutine;
+    int _magnification;
+    bool _isnewDoubting;
+    
 
     void Awake()
     {
+        _isnewDoubting = true;
+        _magnification = 1;
         _myPathindex = 2;
         _lostLocation = Vector3.zero;
         _movestat = MoveStatus.Normal;
@@ -52,7 +58,7 @@ public class Unit : MonoBehaviour
 
     void FixedUpdate()
     {
-
+        sample = (int)_movestat;
     }
 
     IEnumerator NormalMove(int index)
@@ -65,16 +71,15 @@ public class Unit : MonoBehaviour
     {
         while (true)
         {
-            LooAt2DLocal(_target.localPosition);
+            LookAt2DLocal(_target.localPosition);
             transform.Translate(Vector3.right * Time.deltaTime * speed);
             yield return null;
         }
     }
 
-    IEnumerator LastPosition()
+    IEnumerator LastPosition(float time)
     {
-        yield return new WaitForSeconds(1f);
-        StopCoroutine("UpdatePath");
+        yield return new WaitForSeconds(time);
         _lostLocation = _target.position;
         PathRequestManager.RequestPath(new PathRequest(transform.position, _lostLocation, OnPathFound));
     }
@@ -107,6 +112,20 @@ public class Unit : MonoBehaviour
         {
             Vector3 roomPosi = doorCollider.transform.parent.position;
             PathRequestManager.RequestPath(new PathRequest(transform.position, roomPosi, OnPathFound));
+        }
+        else
+        {
+            _movestat = MoveStatus.Normal;
+            companions = Physics2D.OverlapCircleAll(transform.position, 3f, _companionMask);
+            if (companions != null)
+            {
+                for (int i = 0; i < companions.Length; i++)
+                {
+                    SightCtrl sight = companions[i].transform.parent.GetComponent<SightCtrl>();
+                    sight.SetFind();
+                }
+            }
+            StartCoroutine("NormalMove", _myPathindex);
         }
     }
 
@@ -141,6 +160,18 @@ public class Unit : MonoBehaviour
             count++;
             yield return null;
         }
+
+        _movestat = MoveStatus.Normal;
+        companions = Physics2D.OverlapCircleAll(transform.position, 3f, _companionMask);
+        if(companions != null)
+        {
+            for (int i = 0; i < companions.Length; i++)
+            {
+                SightCtrl sight = companions[i].transform.parent.GetComponent<SightCtrl>();
+                sight.SetFind();
+            }
+        }
+        StartCoroutine("NormalMove", _myPathindex);
     }
 
     public void OnPathFound(Vector3[] waypoints, bool pathSuccessful)
@@ -215,7 +246,7 @@ public class Unit : MonoBehaviour
             }
             StartCoroutine("NormalMove", _myPathindex);
         }
-        if (_movestat == MoveStatus.Missing)
+        else if (_movestat == MoveStatus.Missing)
         {
             _movestat = MoveStatus.Check;
             StartCoroutine("CheckMove");
@@ -225,16 +256,60 @@ public class Unit : MonoBehaviour
             _movestat = MoveStatus.Round;
             StartCoroutine("RoundMove");
         }
+        else if (_movestat == MoveStatus.doubt)
+        {
+            StartCoroutine("DoubtMove2");
+        }
     }
 
-    void LooAt2D(Vector3 targetPosi)
+    IEnumerator DoubtMove1(Vector3 targetPosi)
     {
         float angle = Mathf.Atan2(targetPosi.y - transform.position.y,
                                   targetPosi.x - transform.position.x) * Mathf.Rad2Deg;
-        transform.rotation = Quaternion.Euler(0, 0, angle);
+        int count = 0;
+        while (count < 100)
+        {
+            Quaternion tarrot = Quaternion.AngleAxis(angle, Vector3.forward);
+            transform.rotation = Quaternion.Slerp(transform.rotation, tarrot, (turnSpeed * 0.8f) * Time.deltaTime);
+            count++;
+            yield return null;
+        }
+        StartCoroutine("LastPosition", 0f);
     }
 
-    void LooAt2DLocal(Vector3 targetPosi)
+    IEnumerator DoubtMove2()
+    {
+        int count = 0;
+        float current_angle = transform.eulerAngles.z;
+        float angle = current_angle + 70;
+        while (count < 100)
+        {
+            Quaternion tarrot = Quaternion.AngleAxis(angle, Vector3.forward);
+            transform.rotation = Quaternion.Slerp(transform.rotation, tarrot, (turnSpeed * 0.8f) * Time.deltaTime);
+            count++;
+            yield return null;
+        }
+        count = 0;
+        angle = current_angle - 70;
+        while (count < 100)
+        {
+            Quaternion tarrot = Quaternion.AngleAxis(angle, Vector3.forward);
+            transform.rotation = Quaternion.Slerp(transform.rotation, tarrot, (turnSpeed * 0.8f) * Time.deltaTime);
+            count++;
+            yield return null;
+        }
+
+        _movestat = MoveStatus.Normal;
+        StartCoroutine("NormalMove", _myPathindex);
+    }
+
+    IEnumerator DoubtingDelay()
+    {
+        yield return new WaitForSeconds(1f);
+        _isnewDoubting = true;
+    }
+
+    void LookAt2DLocal(Vector3 targetPosi)
     {
         float angle = Mathf.Atan2(targetPosi.y - transform.localPosition.y,
                                   targetPosi.x - transform.localPosition.x) * Mathf.Rad2Deg;
@@ -247,8 +322,23 @@ public class Unit : MonoBehaviour
         {
             _target = target;
             StopAllCoroutines();
+            _isnewDoubting = true;
             StartCoroutine("UpdatePath");
             _movestat = MoveStatus.Chase;
+        }
+    }
+
+    public void SetDoubt(Transform target)
+    {
+        if (_isnewDoubting)
+        {
+            _isnewDoubting = false;
+            _magnification++;
+            _target = target;
+            StopAllCoroutines();
+            _movestat = MoveStatus.doubt;
+            StartCoroutine("DoubtMove1", _target.position);
+            StartCoroutine("DoubtingDelay");
         }
     }
 
@@ -256,9 +346,15 @@ public class Unit : MonoBehaviour
     {
         if (_movestat != MoveStatus.Missing)
         {
-            StartCoroutine("LastPosition");
+            StopCoroutine("UpdatePath");
+            StartCoroutine("LastPosition", 0.75f);
             _movestat = MoveStatus.Missing;
         }
+    }
+
+    public int GetMagnification()
+    {
+        return _magnification;
     }
 
     float toPositive(float a)

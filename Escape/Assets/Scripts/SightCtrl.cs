@@ -95,13 +95,7 @@ public class SightCtrl : MonoBehaviour
                     float dstToTarget = Vector3.Distance(transform.position, target.position);
                     if (!Physics2D.Raycast(transform.position, dirToTarget, dstToTarget, obstacleMask))
                     {
-                        _target = target;
-                        _eUnit.SetChase(_target);
-                        _isCatch = true;
-                        Color color = new Color(1, 1f, 0f, 0.5f);
-                        _mRenderer.material.color = color;
-                        _currentRadius = _maxViewRadius;
-                        _currentViewAngle = _maxViewAngle;
+                        SetFind(target);
                     }
                 }
             }
@@ -117,16 +111,15 @@ public class SightCtrl : MonoBehaviour
                         float dstToTarget = Vector3.Distance(transform.position, target.position);
                         if (!Physics2D.Raycast(transform.position, dirToTarget, dstToTarget, obstacleMask))
                         {
-                            _warnCount++;
+                            _warnCount = _warnCount + 1 * _eUnit.GetMagnification();
                             if (_warnCount > 19)
                             {
-                                _target = target;
-                                _eUnit.SetChase(_target);
-                                _isCatch = true;
-                                Color color = new Color(1, 1f, 0f, 0f);
-                                _mRenderer.material.color = color;
-                                _currentRadius = _maxViewRadius;
-                                _currentViewAngle = _maxViewAngle;
+                                SetFind(target);
+                                return;
+                            }
+                            else
+                            {
+                                _eUnit.SetDoubt(target);
                             }
                         }
                     }
@@ -155,21 +148,25 @@ public class SightCtrl : MonoBehaviour
                     {
                         _eUnit.SetMissing(_target.position);
                         _isCatch = false;
+                        return;
                     }
                 }
                 else
                 {
                     _eUnit.SetMissing(_target.position);
                     _isCatch = false;
+                    return;
                 }
             }
             else
             {
                 _eUnit.SetMissing(_oldtarget.position);
                 _isCatch = false;
+                return;
             }
         }
     }
+
 
     void DrawFieldOfView()
     {
@@ -273,6 +270,25 @@ public class SightCtrl : MonoBehaviour
         {
             return new ViewCastInfo(false, transform.position + dir * _minRadius, _minRadius, globalAngle);
         }
+    }
+
+    public void SetFind()
+    {
+        Color color = new Color(1, 1f, 0f, 0f);
+        _mRenderer.material.color = color;
+        _currentRadius = _maxViewRadius;
+        _currentViewAngle = _maxViewAngle;
+    }
+
+    public void SetFind(Transform target)
+    {
+        _target = target;
+        _isCatch = true;
+        _eUnit.SetChase(_target);
+        Color color = new Color(1, 1f, 0f, 0f);
+        _mRenderer.material.color = color;
+        _currentRadius = _maxViewRadius;
+        _currentViewAngle = _maxViewAngle;
     }
 
     public Vector3 DirFromAngle(float angleInDegrees, bool angleIsGlobal)

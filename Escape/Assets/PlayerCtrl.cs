@@ -11,10 +11,32 @@ public class PlayerCtrl : MonoBehaviour
         
     }
 
+    void Update()
+    {
+        OnMinimap();
+    }
+
     // Update is called once per frame
     void FixedUpdate()
     {
+        KeyProcess();
+    }
+
+    void KeyProcess()
+    {
         Move();
+    }
+
+    void OnMinimap()
+    {
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            _minimap.SetActive(true);
+        }
+        else if (Input.GetKeyUp(KeyCode.Q))
+        {
+            _minimap.SetActive(false);
+        }
     }
 
     void Move()
@@ -37,14 +59,6 @@ public class PlayerCtrl : MonoBehaviour
             {
                 transform.Translate(Vector2.right * 0.5f * Time.deltaTime);
             }
-        }
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            _minimap.SetActive(true);
-        }
-        else if (Input.GetKeyUp(KeyCode.Q))
-        {
-            _minimap.SetActive(false);
         }
     }
 }
