@@ -67,6 +67,7 @@
     <Compile Include="Assets\DoorCtrl.cs" />
     <Compile Include="Assets\E_eyeScript.cs" />
     <Compile Include="Assets\FixMinimapPosi.cs" />
+    <Compile Include="Assets\GameMasterScript.cs" />
     <Compile Include="Assets\Heap.cs" />
     <Compile Include="Assets\KeyContrl.cs" />
     <Compile Include="Assets\Line.cs" />
@@ -232,6 +233,7 @@
     <None Include="Assets\NGUI\Resources\Shaders\Unlit - Transparent Colored (Packed).shader" />
     <None Include="Assets\NGUI\Resources\Shaders\Unlit - Transparent Colored (SoftClip).shader" />
     <None Include="Assets\NGUI\Resources\Shaders\Unlit - Transparent Colored.shader" />
+    <None Include="Assets\Resource\Font\readme.txt" />
     <None Include="Assets\Resource\Shaders\Standard_sample.shader" />
     <None Include="Assets\Resource\Shaders\Stencil Mask.shader" />
     <None Include="Assets\Resource\Shaders\Stencil Object.shader" />

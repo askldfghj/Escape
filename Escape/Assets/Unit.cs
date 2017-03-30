@@ -19,6 +19,7 @@ public class Unit : MonoBehaviour
 
     public LayerMask _doorMask;
     public LayerMask _companionMask;
+    GameMasterScript _gm;
     
 
     Path path;
@@ -35,6 +36,7 @@ public class Unit : MonoBehaviour
 
     void Awake()
     {
+        _gm = GameObject.Find("GameMaster").GetComponent<GameMasterScript>();
         _isnewDoubting = true;
         _magnification = 1;
         _myPathindex = 2;
@@ -106,6 +108,8 @@ public class Unit : MonoBehaviour
             count++;
             yield return null;
         }
+
+        _gm.SetTimer();
 
         Collider2D doorCollider = Physics2D.OverlapCircle(_lostLocation, 1.2f, _doorMask);
         if (doorCollider != null && doorCollider.transform.parent.tag == "Room")

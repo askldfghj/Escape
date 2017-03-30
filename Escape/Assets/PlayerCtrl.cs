@@ -61,4 +61,12 @@ public class PlayerCtrl : MonoBehaviour
             }
         }
     }
+
+    void OnCollisionEnter2D(Collision2D col)
+    {
+        if (col.gameObject.tag == "Enemy")
+        {
+            Time.timeScale = 0f;
+        }
+    }
 }
