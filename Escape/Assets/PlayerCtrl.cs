@@ -6,6 +6,8 @@ public class PlayerCtrl : MonoBehaviour
     // Use this for initialization
     public GameObject _minimap;
 
+    public LayerMask _enemyLayer;
+
     void Start()
     {
         
@@ -37,6 +39,20 @@ public class PlayerCtrl : MonoBehaviour
         {
             _minimap.SetActive(false);
         }
+        if (Input.GetKeyDown(KeyCode.Z))
+        {
+            HitEnemy();
+        }
+    }
+
+    void HitEnemy()
+    {
+        Collider2D targetCollider = Physics2D.OverlapCircle(transform.position, 2f, _enemyLayer);
+        if (targetCollider != null)
+        { 
+            Unit enemyUnit = targetCollider.transform.parent.GetComponent<Unit>();
+            enemyUnit.SetStun();
+        }
     }
 
     void Move()
@@ -59,14 +75,6 @@ public class PlayerCtrl : MonoBehaviour
             {
                 transform.Translate(Vector2.right * 0.5f * Time.deltaTime);
             }
-        }
-    }
-
-    void OnCollisionEnter2D(Collision2D col)
-    {
-        if (col.gameObject.tag == "Enemy")
-        {
-            Time.timeScale = 0f;
         }
     }
 }

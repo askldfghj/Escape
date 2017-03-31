@@ -44,9 +44,12 @@ public class SightCtrl : MonoBehaviour
     public Unit _eUnit;
 
     int _warnCount;
+    GameMasterScript _gm;
 
     void Awake()
     {
+        _mRenderer.material.color = Color.blue;
+        _gm = GameObject.Find("GameMaster").GetComponent<GameMasterScript>();
         _warnCount = 0;
         _isCatch = false;
         viewPoints = new List<Vector3>();
@@ -96,6 +99,7 @@ public class SightCtrl : MonoBehaviour
                     if (!Physics2D.Raycast(transform.position, dirToTarget, dstToTarget, obstacleMask))
                     {
                         SetFind(target);
+                        _gm.SetTimer();
                     }
                 }
             }
@@ -115,6 +119,8 @@ public class SightCtrl : MonoBehaviour
                             if (_warnCount > 19)
                             {
                                 SetFind(target);
+                                _oldtarget = target;
+                                _gm.SetTimer();
                                 return;
                             }
                             else
@@ -142,7 +148,8 @@ public class SightCtrl : MonoBehaviour
                     float dstToTarget = Vector3.Distance(transform.position, target.position);
                     if (!Physics2D.Raycast(transform.position, dirToTarget, dstToTarget, obstacleMask))
                     {
-
+                        _gm.ReTimer();
+                        _gm.TimerOff();
                     }
                     else
                     {
@@ -285,10 +292,37 @@ public class SightCtrl : MonoBehaviour
         _target = target;
         _isCatch = true;
         _eUnit.SetChase(_target);
-        Color color = new Color(1, 1f, 0f, 0f);
-        _mRenderer.material.color = color;
+        _mRenderer.material.color = Color.yellow;
         _currentRadius = _maxViewRadius;
         _currentViewAngle = _maxViewAngle;
+    }
+
+    public void OpenEye()
+    {
+        StartCoroutine("FindTargetsWithDelay", .2f);
+    }
+
+    public void CloseEye()
+    {
+        StopCoroutine("FindTargetsWithDelay");
+    }
+
+    public void InitSightState()
+    {
+        _currentRadius = _minRadius;
+        _currentViewAngle = _minViewAngle;
+        _mRenderer.material.color = Color.blue;
+        _eUnit.SetMagnificationInit();
+        _warnCount = 0;
+    }
+
+    public void alertState()
+    {
+        _currentRadius = _maxViewRadius;
+        _currentViewAngle = _maxViewAngle;
+        _mRenderer.material.color = Color.yellow;
+        _isCatch = false;
+        _warnCount = 20;
     }
 
     public Vector3 DirFromAngle(float angleInDegrees, bool angleIsGlobal)

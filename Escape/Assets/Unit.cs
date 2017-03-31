@@ -19,24 +19,27 @@ public class Unit : MonoBehaviour
 
     public LayerMask _doorMask;
     public LayerMask _companionMask;
+    public GameObject _sightObject;
+    public GameObject _hand;
     GameMasterScript _gm;
-    
+    SightCtrl _mySightCtrl;
+
 
     Path path;
-    
 
-    enum MoveStatus { Normal = 0, doubt, Chase, Missing, Check, Round, Back }
+
+    enum MoveStatus { Normal = 0, doubt, Chase, Missing, Check, Round, Stun }
     MoveStatus _movestat;
-    public int sample;
 
     bool _patroller = false;
     int _magnification;
     bool _isnewDoubting;
-    
+
 
     void Awake()
     {
         _gm = GameObject.Find("GameMaster").GetComponent<GameMasterScript>();
+        _mySightCtrl = GetComponent<SightCtrl>();
         _isnewDoubting = true;
         _magnification = 1;
         _myPathindex = 2;
@@ -60,7 +63,7 @@ public class Unit : MonoBehaviour
 
     void FixedUpdate()
     {
-        sample = (int)_movestat;
+
     }
 
     IEnumerator NormalMove(int index)
@@ -109,7 +112,7 @@ public class Unit : MonoBehaviour
             yield return null;
         }
 
-        _gm.SetTimer();
+        _gm.TimerOn();
 
         Collider2D doorCollider = Physics2D.OverlapCircle(_lostLocation, 1.2f, _doorMask);
         if (doorCollider != null && doorCollider.transform.parent.tag == "Room")
@@ -167,7 +170,7 @@ public class Unit : MonoBehaviour
 
         _movestat = MoveStatus.Normal;
         companions = Physics2D.OverlapCircleAll(transform.position, 3f, _companionMask);
-        if(companions != null)
+        if (companions != null)
         {
             for (int i = 0; i < companions.Length; i++)
             {
@@ -197,7 +200,7 @@ public class Unit : MonoBehaviour
         {
             yield return sec;
             PathRequestManager.RequestPath(new PathRequest(transform.position, _target.position, OnPathFound));
-            
+
         }
     }
 
@@ -313,6 +316,19 @@ public class Unit : MonoBehaviour
         _isnewDoubting = true;
     }
 
+    IEnumerator AfterStunning()
+    {
+        yield return new WaitForSeconds(10f);
+        _gm.SetTimer();
+        _gm.TimerOn();
+        _sightObject.SetActive(true);
+        _mySightCtrl.OpenEye();
+        _hand.SetActive(true);
+        _movestat = MoveStatus.Normal;
+        _mySightCtrl.alertState();
+        StartCoroutine("NormalMove", _myPathindex);
+    }
+
     void LookAt2DLocal(Vector3 targetPosi)
     {
         float angle = Mathf.Atan2(targetPosi.y - transform.localPosition.y,
@@ -329,6 +345,7 @@ public class Unit : MonoBehaviour
             _isnewDoubting = true;
             StartCoroutine("UpdatePath");
             _movestat = MoveStatus.Chase;
+            _hand.SetActive(true);
         }
     }
 
@@ -356,9 +373,27 @@ public class Unit : MonoBehaviour
         }
     }
 
+    public void SetStun()
+    {
+        if (_movestat != MoveStatus.Stun)
+        {
+            _movestat = MoveStatus.Stun;
+            _sightObject.SetActive(false);
+            _mySightCtrl.CloseEye();
+            _hand.SetActive(false);
+            StopAllCoroutines();
+            StartCoroutine("AfterStunning");
+        }
+    }
+
     public int GetMagnification()
     {
         return _magnification;
+    }
+
+    public void SetMagnificationInit()
+    {
+        _magnification = 1;
     }
 
     float toPositive(float a)
@@ -370,6 +405,18 @@ public class Unit : MonoBehaviour
         return a;
     }
 
+    //void OnCollisionEnter2D(Collision2D col)
+    //{
+    //    {
+    //        if (col.gameObject.tag == "Player" && _movestat != MoveStatus.Normal)
+    //        {
+    //            Time.timeScale = 0f;
+    //        }
+    //    }
+    //}
+
+
+
     //public void OnDrawGizmos()
     //{
     //    Vector3 vec = new Vector3(0.05f, 0.05f, 0.05f);
@@ -378,4 +425,4 @@ public class Unit : MonoBehaviour
     //        path.DrawWithGizmos();           
     //    }
     //} 
- }
+}

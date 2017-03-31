@@ -68,6 +68,7 @@
     <Compile Include="Assets\E_eyeScript.cs" />
     <Compile Include="Assets\FixMinimapPosi.cs" />
     <Compile Include="Assets\GameMasterScript.cs" />
+    <Compile Include="Assets\HandCtrl.cs" />
     <Compile Include="Assets\Heap.cs" />
     <Compile Include="Assets\KeyContrl.cs" />
     <Compile Include="Assets\Line.cs" />
