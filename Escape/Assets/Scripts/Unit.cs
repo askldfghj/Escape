@@ -17,6 +17,7 @@ public class Unit : MonoBehaviour
     public float turnDst = 1f;
     public float turnSpeed = 3f;
 
+    public UISprite _enemysprite;
     public LayerMask _doorMask;
     public LayerMask _companionMask;
     public GameObject _sightObject;
@@ -324,6 +325,7 @@ public class Unit : MonoBehaviour
         _sightObject.SetActive(true);
         _mySightCtrl.OpenEye();
         _hand.SetActive(true);
+        _enemysprite.color = Color.red;
         _movestat = MoveStatus.Normal;
         _mySightCtrl.alertState();
         StartCoroutine("NormalMove", _myPathindex);
@@ -381,6 +383,7 @@ public class Unit : MonoBehaviour
             _sightObject.SetActive(false);
             _mySightCtrl.CloseEye();
             _hand.SetActive(false);
+            _enemysprite.color = Color.blue;
             StopAllCoroutines();
             StartCoroutine("AfterStunning");
         }

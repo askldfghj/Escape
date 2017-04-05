@@ -8,6 +8,9 @@ public class PlayerCtrl : MonoBehaviour
 
     public LayerMask _enemyLayer;
 
+    [Range(0,1)]
+    public float _attackRange;
+
     void Start()
     {
         
@@ -47,7 +50,7 @@ public class PlayerCtrl : MonoBehaviour
 
     void HitEnemy()
     {
-        Collider2D targetCollider = Physics2D.OverlapCircle(transform.position, 2f, _enemyLayer);
+        Collider2D targetCollider = Physics2D.OverlapCircle(transform.position, _attackRange, _enemyLayer);
         if (targetCollider != null)
         { 
             Unit enemyUnit = targetCollider.transform.parent.GetComponent<Unit>();

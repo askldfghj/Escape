@@ -63,15 +63,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\ChasePlayer.cs" />
-    <Compile Include="Assets\DoorCtrl.cs" />
-    <Compile Include="Assets\E_eyeScript.cs" />
-    <Compile Include="Assets\FixMinimapPosi.cs" />
-    <Compile Include="Assets\GameMasterScript.cs" />
-    <Compile Include="Assets\HandCtrl.cs" />
-    <Compile Include="Assets\Heap.cs" />
-    <Compile Include="Assets\KeyContrl.cs" />
-    <Compile Include="Assets\Line.cs" />
+    <Compile Include="Assets\EndBtnScript.cs" />
     <Compile Include="Assets\NGUI\Examples\Scripts\InventorySystem\Game\EquipItems.cs" />
     <Compile Include="Assets\NGUI\Examples\Scripts\InventorySystem\Game\EquipRandomItem.cs" />
     <Compile Include="Assets\NGUI\Examples\Scripts\InventorySystem\Game\UICursor.cs" />
@@ -190,16 +182,26 @@
     <Compile Include="Assets\NGUI\Scripts\UI\UITiledSprite.cs" />
     <Compile Include="Assets\NGUI\Scripts\UI\UITooltip.cs" />
     <Compile Include="Assets\NGUI\Scripts\UI\UIViewport.cs" />
-    <Compile Include="Assets\Path.cs" />
-    <Compile Include="Assets\PathRequestManager.cs" />
-    <Compile Include="Assets\PlayerCtrl.cs" />
     <Compile Include="Assets\Scripts\BasicEnemyCtrl.cs" />
+    <Compile Include="Assets\Scripts\ChasePlayer.cs" />
+    <Compile Include="Assets\Scripts\DoorCtrl.cs" />
+    <Compile Include="Assets\Scripts\E_eyeScript.cs" />
+    <Compile Include="Assets\Scripts\FixMinimapPosi.cs" />
+    <Compile Include="Assets\Scripts\GameMasterScript.cs" />
     <Compile Include="Assets\Scripts\Grid.cs" />
+    <Compile Include="Assets\Scripts\HandCtrl.cs" />
+    <Compile Include="Assets\Scripts\Heap.cs" />
+    <Compile Include="Assets\Scripts\KeyContrl.cs" />
     <Compile Include="Assets\Scripts\LV0_RQChanger.cs" />
+    <Compile Include="Assets\Scripts\Line.cs" />
     <Compile Include="Assets\Scripts\Node.cs" />
+    <Compile Include="Assets\Scripts\Path.cs" />
+    <Compile Include="Assets\Scripts\PathRequestManager.cs" />
     <Compile Include="Assets\Scripts\Pathfinding.cs" />
+    <Compile Include="Assets\Scripts\PlayerCtrl.cs" />
     <Compile Include="Assets\Scripts\SightCtrl.cs" />
-    <Compile Include="Assets\Unit.cs" />
+    <Compile Include="Assets\Scripts\Unit.cs" />
+    <Compile Include="Assets\StartBtnScript.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\NGUI\Examples\Atlases\Fantasy\Fantasy Font - Normal.txt" />
