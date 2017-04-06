@@ -1,10 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class GameMasterScript : MonoBehaviour
 {
     public UILabel _timerLabel;
     public GameObject _enemyPool;
+    public GameObject _gameOverCurtain;
+    public PlayerCtrl _player;
 
     SightCtrl[] _enemySights;
     GameObject _timerObject;
@@ -88,5 +91,22 @@ public class GameMasterScript : MonoBehaviour
         StopCoroutine("TimerColorLerp");
         _timerLabel.color = Color.red;
         _timerLabel.text = _timer.ToString();
+    }
+
+    public void OnGameOver()
+    {
+        _gameOverCurtain.SetActive(true);
+        _player.PlayerShutDown();
+    }
+
+    void Retry()
+    {
+        SceneManager.LoadScene("1_play");
+        Time.timeScale = 1f;
+    }
+
+    void DontRetry()
+    {
+        SceneManager.LoadScene("0_start");
     }
 }

@@ -32,6 +32,7 @@ public class Unit : MonoBehaviour
     enum MoveStatus { Normal = 0, doubt, Chase, Missing, Check, Round, Stun }
     MoveStatus _movestat;
 
+    bool _chaser = false;
     bool _patroller = false;
     int _magnification;
     bool _isnewDoubting;
@@ -257,6 +258,7 @@ public class Unit : MonoBehaviour
         else if (_movestat == MoveStatus.Missing)
         {
             _movestat = MoveStatus.Check;
+            _chaser = false;
             StartCoroutine("CheckMove");
         }
         else if (_movestat == MoveStatus.Check)
@@ -343,6 +345,7 @@ public class Unit : MonoBehaviour
         if (_movestat != MoveStatus.Chase)
         {
             _target = target;
+            _chaser = true;
             StopAllCoroutines();
             _isnewDoubting = true;
             StartCoroutine("UpdatePath");
@@ -377,7 +380,7 @@ public class Unit : MonoBehaviour
 
     public void SetStun()
     {
-        if (_movestat != MoveStatus.Stun)
+        if (_movestat != MoveStatus.Stun && !_chaser)
         {
             _movestat = MoveStatus.Stun;
             _sightObject.SetActive(false);
@@ -407,25 +410,4 @@ public class Unit : MonoBehaviour
         }
         return a;
     }
-
-    //void OnCollisionEnter2D(Collision2D col)
-    //{
-    //    {
-    //        if (col.gameObject.tag == "Player" && _movestat != MoveStatus.Normal)
-    //        {
-    //            Time.timeScale = 0f;
-    //        }
-    //    }
-    //}
-
-
-
-    //public void OnDrawGizmos()
-    //{
-    //    Vector3 vec = new Vector3(0.05f, 0.05f, 0.05f);
-    //    if (path != null)
-    //    {
-    //        path.DrawWithGizmos();           
-    //    }
-    //} 
 }

@@ -5,15 +5,17 @@ public class PlayerCtrl : MonoBehaviour
 {
     // Use this for initialization
     public GameObject _minimap;
-
+    
     public LayerMask _enemyLayer;
+
+    bool _ctrlActive;
 
     [Range(0,1)]
     public float _attackRange;
 
-    void Start()
+    void Awake()
     {
-        
+        _ctrlActive = true;
     }
 
     void Update()
@@ -34,17 +36,20 @@ public class PlayerCtrl : MonoBehaviour
 
     void OnMinimap()
     {
-        if (Input.GetKeyDown(KeyCode.Q))
+        if (_ctrlActive)
         {
-            _minimap.SetActive(true);
-        }
-        else if (Input.GetKeyUp(KeyCode.Q))
-        {
-            _minimap.SetActive(false);
-        }
-        if (Input.GetKeyDown(KeyCode.Z))
-        {
-            HitEnemy();
+            if (Input.GetKeyDown(KeyCode.Q))
+            {
+                _minimap.SetActive(true);
+            }
+            else if (Input.GetKeyUp(KeyCode.Q))
+            {
+                _minimap.SetActive(false);
+            }
+            if (Input.GetKeyDown(KeyCode.Z))
+            {
+                HitEnemy();
+            }
         }
     }
 
@@ -60,7 +65,7 @@ public class PlayerCtrl : MonoBehaviour
 
     void Move()
     {
-        if (!_minimap.activeSelf)
+        if (_ctrlActive && !_minimap.activeSelf)
         {
             if (Input.GetKey(KeyCode.UpArrow))
             {
@@ -79,5 +84,11 @@ public class PlayerCtrl : MonoBehaviour
                 transform.Translate(Vector2.right * 0.5f * Time.deltaTime);
             }
         }
+    }
+
+    public void PlayerShutDown()
+    {
+        _ctrlActive = false;
+        _minimap.SetActive(false);
     }
 }
